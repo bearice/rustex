@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use rustex::records::*;
 use rustex::Exchange;
 use std::cell::RefCell;
@@ -27,11 +28,21 @@ where
 }
 
 fn main() -> io::Result<()> {
+    /*
+    let a: BigDec = "12345678901234567890.123456789012345678901234567890".parse().unwrap();
+    println!("{:?}",a);
+    let b = a.with_scale(8);
+    println!("{:?}",b);
+    let c = a.with_prec(8);
+    println!("{:?}",c);
+    return Ok(());
+    */
+
     let mut ex = Exchange::new();
     let records: Vec<RefCell<OrderRec>> =
         load_dat("data/in.dat", |s| RefCell::new(s.unwrap().parse().unwrap()))?;
-    let results: Vec<Vec<MatchResult>> = load_dat("data/out.dat", |s| {
-        MatchResult::from_line(s.unwrap()).unwrap()
+    let results: Vec<Box<Vec<MatchResult>>> = load_dat("data/out.dat", |s| {
+        Box::new(MatchResult::from_line(s.unwrap()).unwrap())
     })?;
     let len = records.len();
     assert_eq!(len, results.len());
@@ -42,16 +53,22 @@ fn main() -> io::Result<()> {
         //println!("\r\n===\r\nevent => {:?}", x);
         let res = ex.process(x);
         my_res.push(res);
-        /*
-        if &res != y {
-            println!("H {:?}", &res);
-            println!("W {:?}", y);
-            MatchResult::debug_vec_eq(&res,y);
-            return Ok(());
-        }
-        */
     }
     let d = now.elapsed().as_millis();
-    println!("Processed {} records in {} ms", &len, d);
+    let speed = len * 1000 / usize::try_from(d).unwrap();
+    println!("Processed {} records in {} ms, speed {}/s", &len, d, speed);
+    let it = my_res.iter();
+    let it2 = results.iter();
+    let now = Instant::now();
+    for (x,y) in it.zip(it2){
+        if x != y {
+            println!("H {:?}", x);
+            println!("W {:?}", y);
+            MatchResult::debug_vec_eq(x,y);
+            return Ok(());
+        }
+    }
+    let d = now.elapsed().as_millis();
+    println!("Checked {} records in {} ms", &len, d);
     Ok(())
 }

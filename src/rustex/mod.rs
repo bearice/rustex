@@ -117,7 +117,7 @@ impl Exchange {
                     action: o.action,
                     price: o.price.clone(),
                     state,
-                    amount: floor_with_prec(amount,18),
+                    amount: amount.with_scale(18),
                 }
             }
 
@@ -150,7 +150,7 @@ impl Exchange {
                     let mut mm = m.borrow_mut();
                     let mo = o.borrow();
                     let filled = if action == OrderAction::BuyMarket {
-                        floor_with_prec(&(&mo.unfilled_amount / &mm.price),18)
+                        (&mo.unfilled_amount * &mm.price_inv).with_scale(18)
                     } else {
                         mo.unfilled_amount.clone()
                     };

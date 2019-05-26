@@ -6,6 +6,7 @@ use num_bigint::*;
 use bigdecimal::*;
 pub type BigDec = BigDecimal;
 
+/*
 pub fn floor_with_prec(x: &BigDec, prec: i64) -> BigDec {
     let a = BigDec::new(BigInt::from(10),-prec+1);
     let b = x*&a;
@@ -14,6 +15,7 @@ pub fn floor_with_prec(x: &BigDec, prec: i64) -> BigDec {
     //println!("floor=> a={:?} b={:?} c={:?} d={:?}",a,b,c,d);
     return d;
 }
+*/
 
 //(:order-id 98636 :action :sell-limit :price "10383.31316488943776" :amount "4590.912099969064" :unfilled-amount "4590.912099969064" :state :submitted)
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -90,6 +92,7 @@ pub struct OrderRec {
     pub id: OrderId,
     pub action: OrderAction,
     pub price: BigDec,
+    pub price_inv: BigDec,
     pub amount: BigDec,
     pub unfilled_amount: BigDec,
     pub state: OrderState,
@@ -119,7 +122,8 @@ impl FromStr for OrderRec {
         };
         let id = parts[1].parse().map_err(|e| format!("{}", e))?;
         let action = parts[3].parse()?;
-        let price = parse_big_dec(parts[5])?;
+        let price: BigDec = parse_big_dec(parts[5])?;
+        let price_inv = price.inverse();
         let amount = parse_big_dec(parts[7])?;
         let unfilled_amount = parse_big_dec(parts[9])?;
         let state = parts[11].parse()?;
@@ -127,6 +131,7 @@ impl FromStr for OrderRec {
             id,
             action,
             price,
+            price_inv,
             amount,
             unfilled_amount,
             state,
