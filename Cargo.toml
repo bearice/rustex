@@ -1,0 +1,15 @@
+[package]
+name = "rustex"
+version = "0.1.0"
+authors = ["Bearice Ren<bearice@icybear.net> <bearice@icybear.net>"]
+edition = "2018"
+
+[dependencies]
+fixed = "0.3"
+bigdecimal = "0.1"
+atomic-counter = "1.0"
+skiplist = "0.2"
+num-bigint = "0.2"
+
+[profile.release]
+debug = true

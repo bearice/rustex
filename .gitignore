@@ -1,0 +1,6 @@
+/target
+**/*.rs.bk
+/data
+*.svg
+perf.*
+*.swp
